@@ -337,3 +337,5 @@ System checks all active bookings before confirming.
 I am not fully sure about the best way to check item availability when multiple bookings have overlapping dates.
 I am unsure how to properly update inventory quantities when items are damaged, missing, or returned late
 I am unsure how to design a simple but user-friendly command-line menu system
+
+Update plan
