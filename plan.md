@@ -6,6 +6,7 @@ The main users are Rakesh (Owner) and Ankit(Operator). Rakesh ji will mainly che
 
 The project will be considered complete if the system can safely store data in JSON files, prevent double-booking of items, track payments and damages, and work correctly after restarting the program.
 
+
 2. Information The Program Must Remember
 
 A.Customer
@@ -34,8 +35,8 @@ B. Inventory Items
 
 Item Type Values
 Bulk
-
 Unique
+
 Example Categories
 Chairs
 Tables
@@ -71,17 +72,17 @@ This helps the system know exactly which unique item is booked.
 
 D . Bookings
 
-| Field          | Type   | Required |
-| -------------- | ------ | -------- |
-| booking_id     | string | Yes      |
-| customer_id    | string | Yes      |
-| event_name     | string | Yes      |
-| event_address  | string | Yes      |
-| start_date     | string | Yes      |
-| end_date       | string | Yes      |
-| booking_status | string | Yes      |
-| total_amount   | float  | Yes      |
-| created_date   | string | Yes      |
+| Field            | Type   | Required |
+| ---------------- | ------ | -------- |
+| booking_id       | string | Yes      |
+| customer_id      | string | Yes      |
+| event_name       | string | Yes      |
+| event_address    | string | Yes      |
+| event_start_date | string | Yes      |
+| event_end_date   | string | Yes      |
+| booking_status   | string | Yes      |
+| total_amount     | float  | Yes      |
+| created_date     | string | Yes      |
 
 Booking Status Values :
 Pending
@@ -89,7 +90,12 @@ Confirmed
 Cancelled
 Completed
 
-Remaining balance will be calculated using total amount and payment records and Every booking needs dates because item availability depends on dates.
+Event dates represent the actual function dates.
+Item availability will not be checked using event dates directly because items may leave before the event and return after the event.
+Availability checking will use delivery and expected return dates from the Deliveries & Returns records.
+
+Remaining balance will be calculated using total amount and payment records. 
+Every booking needs dates because item availability depends on dates.
 
 E . Booking Items
 | Field             | Type    | Required |
@@ -97,17 +103,25 @@ E . Booking Items
 | booking_item_id   | string  | Yes      |
 | booking_id        | string  | Yes      |
 | item_id           | string  | Yes      |
+| unit_id           | string  | Optional |
 | quantity_booked   | integer | Yes      |
-| quantity_sent      | integer | Yes      |
+| quantity_sent     | integer | Yes      |
+| quantity_returned | integer | Yes      |
+| quantity_damaged  | integer | Optional |
+| quantity_missing  | integer | Optional |
 | price_per_day     | float   | Yes      |
 | total_price       | float   | Yes      |
 
 One booking contains many items.
 Returned quantity is stored per booking item so partial returns can be tracked.
-
+For bulk items unit_id will stay empty, but for unique items the booking item will store the exact unit being rented.
 Example:
-booked = 200
-delivered = 150
+Booking Item:
+item_id = Sound System
+unit_id = U001
+means Sound System A is booked.
+
+
 
 F . Payments
 | Field        | Type   | Required |
@@ -127,14 +141,15 @@ Damage Charge
 
 G . Deliveries & Returns
 
-| Field         | Type   | Required |
-| ------------- | ------ | -------- |
-| delivery_id   | string | Yes      |
-| booking_id    | string | Yes      |
-| delivery_date | string | Yes      |
-| return_date   | string | Optional |
-| status        | string | Yes      |
-| notes         | string | Optional |
+| Field                | Type   | Required |
+| -------------        | ------ | -------- |
+| delivery_id          | string | Yes      |
+| booking_id           | string | Yes      |
+| delivery_date        | string | Yes      |
+| expected_return_date | string | Yes      |
+| actual_return_date   | string | Optional |
+| status               | string | Yes      |
+| notes                | string | Optional |
 
 Status Values :
 Pending
@@ -149,7 +164,7 @@ H . Damage Records
 | ---------------- | ------- | -------- |
 | damage_id        | string  | Yes      |
 | booking_id       | string  | Yes      |
-| item_id          | string  | Yes      |
+| damage_id        | string  | Yes      |
 | quantity_damaged | integer | Yes      |
 | issue_type       | string  | Yes      |
 | extra_charge     | float   | Yes      |
@@ -160,6 +175,24 @@ Broken
 Scratched
 
 Missing items and late returns are stored separately because they affect billing and inventory differently.
+
+I. Missing Item Records
+
+| Field            | Type     | Required |
+|------------------|----------|----------|
+| missing_id       | string   | Yes      |
+| booking_item_id  | string   | Yes      |
+| quantity_missing | integer  | Yes      |
+| missing_charge   | float    | Yes      |
+
+J. Late Return Records
+
+| Field           | Type    | Required |
+|-----------------|---------|----------|
+| late_return_id  | string  | Yes      |
+| booking_item_id | string  | Yes      |
+| delayed_days    | integer | Yes      |
+| late_fee        | float   | Yes      |
 
 
 
@@ -178,9 +211,10 @@ Damage records are connected to bookings and inventory items.
 Unique item units are connected to inventory items so the program knows exactly which expensive item is booked.
 
 Availability is calculated using:
-booking dates
+delivery dates
+expected return dates
 existing bookings
-overlapping dates
+overlapping schedules
 
 When items are returned, returned quantity is updated.
 
@@ -197,6 +231,8 @@ booking_items.json
 payments.json
 deliveries.json
 damages.json
+missing_items.json
+late_returns.json
 
 Why Multiple Files
 Easier to read
