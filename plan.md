@@ -107,9 +107,8 @@ E . Booking Items
 | quantity_booked   | integer | Yes      |
 | quantity_sent     | integer | Yes      |
 | quantity_returned | integer | Yes      |
-| quantity_damaged  | integer | Optional |
-| quantity_missing  | integer | Optional |
 | price_per_day     | float   | Yes      |
+| discount_amount   | float   | Optional |
 | total_price       | float   | Yes      |
 
 One booking contains many items.
@@ -164,9 +163,9 @@ H . Damage Records
 | ---------------- | ------- | -------- |
 | damage_id        | string  | Yes      |
 | booking_id       | string  | Yes      |
-| damage_id        | string  | Yes      |
+| item_id          | string  | Yes      |
+| damage_type      | string  | Yes      |
 | quantity_damaged | integer | Yes      |
-| issue_type       | string  | Yes      |
 | extra_charge     | float   | Yes      |
 
 
@@ -233,6 +232,78 @@ deliveries.json
 damages.json
 missing_items.json
 late_returns.json
+
+Examples -
+
+customers.json
+
+[
+  {
+    "customer_id": "C001",
+    "name": "Parkash Sharma",
+    "phone": "9876543XXXX",
+    "address": "Talwandi, Kota",
+    "notes": "Regular customer"
+  }
+]
+
+bookings.json
+
+[
+  {
+    "booking_id": "B001",
+    "customer_id": "C001",
+    "event_name": "Sharma Wedding",
+    "event_address": "Mahaveer Nagar, Kota",
+    "event_start_date": "2026-12-18",
+    "event_end_date": "2026-12-19",
+    "booking_status": "Confirmed",
+    "total_amount": 45000,
+    "created_date": "2026-11-01"
+  }
+]
+
+booking_items.json
+
+[
+  {
+    "booking_item_id": "BI001",
+    "booking_id": "B001",
+    "item_id": "I001",
+    "unit_id": null,
+    "quantity_booked": 200,
+    "quantity_sent": 200,
+    "quantity_returned": 198,
+    "price_per_day": 10,
+    "discount_percent": 5,
+    "total_price": 3800
+  },
+  {
+    "booking_item_id": "BI002",
+    "booking_id": "B001",
+    "item_id": "I010",
+    "unit_id": "U001",
+    "quantity_booked": 1,
+    "quantity_sent": 1,
+    "quantity_returned": 1,
+    "price_per_day": 5000,
+    "discount_percent": 0,
+    "total_price": 5000
+  }
+]
+
+payments.json
+[
+  {
+    "payment_id": "P001",
+    "booking_id": "B001",
+    "amount": 10000,
+    "payment_type": "Deposit",
+    "payment_date": "2026-12-10"
+  }
+]
+
+
 
 Why Multiple Files
 Easier to read
@@ -357,7 +428,15 @@ The system automatically saves all JSON data safely.
 Example:
 After restarting next morning, all bookings and inventory records are still available.
 
+(u) User checks idle inventory items.
+The system shows items that were rarely booked in a selected time period.
+Example:
+System shows that decorative sofa sets were booked only once last month.
 
+(v) User checks daily activity schedule.
+The system shows deliveries, returns, and active bookings for a selected date.
+Example:
+Rakesh ji checks all deliveries and pickups happening on 22 December.
 
 6. Things That Can Go Wrong
 (a) JSON file missing on first run.
