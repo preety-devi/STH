@@ -70,7 +70,7 @@ Example
 
 This helps the system know exactly which unique item is booked.
 
-D . Bookings
+D. Bookings
 
 | Field            | Type   | Required |
 | ---------------- | ------ | -------- |
@@ -97,12 +97,11 @@ Availability checking will use delivery and expected return dates from the Deliv
 Remaining balance will be calculated using total amount and payment records. 
 Every booking needs dates because item availability depends on dates.
 
-E . Booking Items
+E. Booking Items
+
 | Field             | Type    | Required |
 | ----------------- | ------- | -------- |
 | booking_item_id   | string  | Yes      |
-| booking_id        | string  | Yes      |
-| item_id           | string  | Yes      |
 | unit_id           | string  | Optional |
 | quantity_booked   | integer | Yes      |
 | quantity_sent     | integer | Yes      |
@@ -122,7 +121,8 @@ means Sound System A is booked.
 
 
 
-F . Payments
+F. Payments
+
 | Field        | Type   | Required |
 | ------------ | ------ | -------- |
 | payment_id   | string | Yes      |
@@ -138,7 +138,7 @@ Full Payment
 Refund
 Damage Charge
 
-G . Deliveries & Returns
+G. Deliveries & Returns
 
 | Field                | Type   | Required |
 | -------------        | ------ | -------- |
@@ -157,7 +157,7 @@ Partially Returned
 Returned
 
 
-H . Damage Records
+H. Damage Records
 
 | Field            | Type    | Required |
 | ---------------- | ------- | -------- |
@@ -275,7 +275,7 @@ booking_items.json
     "quantity_sent": 200,
     "quantity_returned": 198,
     "price_per_day": 10,
-    "discount_percent": 5,
+    "discount_amount": 200,
     "total_price": 3800
   },
   {
@@ -287,7 +287,7 @@ booking_items.json
     "quantity_sent": 1,
     "quantity_returned": 1,
     "price_per_day": 5000,
-    "discount_percent": 0,
+    "discount_amount": 0,
     "total_price": 5000
   }
 ]
