@@ -8,7 +8,8 @@ def generate_item_id():
     if not inventory:
         return 1
 
-    return inventory[-1]["item_id"] + 1
+    max_id = max(item["item_id"] for item in inventory)
+    return max_id + 1
 
 
 def add_item():
