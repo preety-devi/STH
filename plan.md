@@ -1,4 +1,4 @@
-1 Three-Sentence Specification
+1. Three-Sentence Specification
 
 This program helps Sharma Tent House manage bookings, rented items, payments, deliveries, returns, and damaged items using a command-line Python application.
 
@@ -6,7 +6,8 @@ The main users are Rakesh (Owner) and Ankit(Operator). Rakesh ji will mainly che
 
 The project will be considered complete if the system can safely store data in JSON files, prevent double-booking of items, track payments and damages, and work correctly after restarting the program.
 
-2 Information The Program Must Remember
+
+2. Information The Program Must Remember
 
 A.Customer
 | Field       | Type   | Required |
@@ -27,12 +28,14 @@ B. Inventory Items
 | item_id            | string  | Yes      |
 | item_name          | string  | Yes      |
 | category           | string  | Yes      |
-| total_quantity     | integer | Yes      |
-| available_quantity | integer | Yes      |
+| total_quantity     | integer | Yes      |      
 | rent_per_day       | float   | Yes      |
 | damage_charge      | float   | Yes      |
-| unique_item        | boolean | Yes      |
-| status             | string  | Yes      |
+| item_type          | string  | Yes      |
+
+Item Type Values
+Bulk
+Unique
 
 Example Categories
 Chairs
@@ -42,41 +45,84 @@ Sound System
 Sofa
 Dinner Set
 
-Some items are unique (sound system), while some are bulk items (chairs).
 
-C. Bookings
-| Field          | Type   | Required |
-| -------------- | ------ | -------- |
-| booking_id     | string | Yes      |
-| customer_id    | string | Yes      |
-| event_name     | string | Yes      |
-| event_address  | string | Yes      |
-| start_date     | string | Yes      |
-| end_date       | string | Yes      |
-| booking_status | string | Yes      |
-| total_amount   | float  | Yes      |
-| deposit_paid   | float  | Yes      |
-| balance_due    | float  | Yes      |
-| created_date   | string | Yes      |
+Availability will not be permanently stored because it depends on booking dates.
+
+The system will calculate available quantity using existing bookings and overlapping dates.
 
 
+C. Unique Item Units
 
+This table is only for expensive individually trackable items.
+
+| Field     | Type   | Required |
+| --------- | ------ | -------- |
+| unit_id   | string | Yes      |
+| item_id   | string | Yes      |
+| unit_name | string | Yes      |
+
+Example
+
+| unit_id | item_id | unit_name      |
+| ------- | ------- | -------------- |
+| U001    | I010    | Sound System A |
+| U002    | I010    | Sound System B |
+
+This helps the system know exactly which unique item is booked.
+
+D. Bookings
+
+| Field            | Type   | Required |
+| ---------------- | ------ | -------- |
+| booking_id       | string | Yes      |
+| customer_id      | string | Yes      |
+| event_name       | string | Yes      |
+| event_address    | string | Yes      |
+| event_start_date | string | Yes      |
+| event_end_date   | string | Yes      |
+| booking_status   | string | Yes      |
+| total_amount     | float  | Yes      |
+| created_date     | string | Yes      |
+
+Booking Status Values :
+Pending
+Confirmed
+Cancelled
+Completed
+
+Event dates represent the actual function dates.
+Item availability will not be checked using event dates directly because items may leave before the event and return after the event.
+Availability checking will use delivery and expected return dates from the Deliveries & Returns records.
+
+Remaining balance will be calculated using total amount and payment records. 
 Every booking needs dates because item availability depends on dates.
 
-D. Booking Items
-| Field           | Type    | Required |
-| --------------- | ------- | -------- |
-| booking_item_id | string  | Yes      |
-| booking_id      | string  | Yes      |
-| item_id         | string  | Yes      |
-| quantity        | integer | Yes      |
-| price_per_day   | float   | Yes      |
-| total_price     | float   | Yes      |
+E. Booking Items
 
+| Field             | Type    | Required |
+| ----------------- | ------- | -------- |
+| booking_item_id   | string  | Yes      |
+| unit_id           | string  | Optional |
+| quantity_booked   | integer | Yes      |
+| quantity_sent     | integer | Yes      |
+| quantity_returned | integer | Yes      |
+| price_per_day     | float   | Yes      |
+| discount_amount   | float   | Optional |
+| total_price       | float   | Yes      |
 
 One booking contains many items.
+Returned quantity is stored per booking item so partial returns can be tracked.
+For bulk items unit_id will stay empty, but for unique items the booking item will store the exact unit being rented.
+Example:
+Booking Item:
+item_id = Sound System
+unit_id = U001
+means Sound System A is booked.
 
-E. Payments
+
+
+F. Payments
+
 | Field        | Type   | Required |
 | ------------ | ------ | -------- |
 | payment_id   | string | Yes      |
@@ -85,44 +131,71 @@ E. Payments
 | payment_type | string | Yes      |
 | payment_date | string | Yes      |
 
-Payment Types
--Deposit
--Full Payment
--Refund
--Damage Deduction
+Payment Types :
+Deposit
+Partial Payment
+Full Payment
+Refund
+Damage Charge
 
-F. Deliveries & Returns
-| Field         | Type    | Required |
-| ------------- | ------- | -------- |
-| delivery_id   | string  | Yes      |
-| booking_id    | string  | Yes      |
-| delivery_date | string  | Yes      |
-| return_date   | string  | Optional |
-| returned      | boolean | Yes      |
-| notes         | string  | Optional |
+G. Deliveries & Returns
+
+| Field                | Type   | Required |
+| -------------        | ------ | -------- |
+| delivery_id          | string | Yes      |
+| booking_id           | string | Yes      |
+| delivery_date        | string | Yes      |
+| expected_return_date | string | Yes      |
+| actual_return_date   | string | Optional |
+| status               | string | Yes      |
+| notes                | string | Optional |
+
+Status Values :
+Pending
+Delivered
+Partially Returned
+Returned
 
 
-
-G. Damage Records
+H. Damage Records
 
 | Field            | Type    | Required |
 | ---------------- | ------- | -------- |
 | damage_id        | string  | Yes      |
 | booking_id       | string  | Yes      |
 | item_id          | string  | Yes      |
-| quantity_damaged | integer | Yes      |
 | damage_type      | string  | Yes      |
+| quantity_damaged | integer | Yes      |
 | extra_charge     | float   | Yes      |
 
-Damage Types
--Missing
--Broken
--Scratched
--Late Return
+
+Damage Types:
+Broken
+Scratched
+
+Missing items and late returns are stored separately because they affect billing and inventory differently.
+
+I. Missing Item Records
+
+| Field            | Type     | Required |
+|------------------|----------|----------|
+| missing_id       | string   | Yes      |
+| booking_item_id  | string   | Yes      |
+| quantity_missing | integer  | Yes      |
+| missing_charge   | float    | Yes      |
+
+J. Late Return Records
+
+| Field           | Type    | Required |
+|-----------------|---------|----------|
+| late_return_id  | string  | Yes      |
+| booking_item_id | string  | Yes      |
+| delayed_days    | integer | Yes      |
+| late_fee        | float   | Yes      |
 
 
 
- 3 How The Groupings Connect To Each Other
+3. How The Groupings Connect To Each Other
 
 Customers create bookings.
 
@@ -134,206 +207,282 @@ Payments are connected to bookings because customers may pay multiple times.
 
 Damage records are connected to bookings and inventory items.
 
-Unique item units are connected to inventory items so the program knows exactly which expensive item is out at an event.
+Unique item units are connected to inventory items so the program knows exactly which expensive item is booked.
 
-When a booking is confirmed, inventory quantities reduce temporarily. When items return, quantities increase again.
+Availability is calculated using:
+delivery dates
+expected return dates
+existing bookings
+overlapping schedules
+
+When items are returned, returned quantity is updated.
 
 
-File Structure
+4. File Structure
 
 I will use multiple JSON files because it keeps data cleaner and easier to manage.
 
-##customers.json
+customers.json
+inventory.json
+unique_units.json
+bookings.json
+booking_items.json
+payments.json
+deliveries.json
+damages.json
+missing_items.json
+late_returns.json
+
+Examples -
+
+customers.json
+
 [
   {
     "customer_id": "C001",
-    "name": "Rajesh Agarwal",
-    "phone": "9876543210",
+    "name": "Parkash Sharma",
+    "phone": "9876543XXXX",
     "address": "Talwandi, Kota",
     "notes": "Regular customer"
   }
 ]
-##inventory.json
-[
-  {
-    "item_id": "I001",
-    "item_name": "White Plastic Chair",
-    "category": "Chair",
-    "total_quantity": 500,
-    "available_quantity": 320,
-    "rent_per_day": 12,
-    "damage_charge": 250,
-    "unique_item": false,
-    "status": "Available"
-  }
-]
-##bookings.json
+
+bookings.json
+
 [
   {
     "booking_id": "B001",
     "customer_id": "C001",
-    "event_name": "Agarwal Wedding",
+    "event_name": "Sharma Wedding",
     "event_address": "Mahaveer Nagar, Kota",
-    "start_date": "2026-12-18",
-    "end_date": "2026-12-20",
+    "event_start_date": "2026-12-18",
+    "event_end_date": "2026-12-19",
     "booking_status": "Confirmed",
     "total_amount": 45000,
-    "deposit_paid": 10000,
-    "balance_due": 35000,
-    "created_date": "2026-05-20"
+    "created_date": "2026-11-01"
   }
 ]
-##booking_items.json
+
+booking_items.json
+
 [
   {
     "booking_item_id": "BI001",
     "booking_id": "B001",
     "item_id": "I001",
-    "quantity": 200,
-    "price_per_day": 12,
-    "total_price": 4800
+    "unit_id": null,
+    "quantity_booked": 200,
+    "quantity_sent": 200,
+    "quantity_returned": 198,
+    "price_per_day": 10,
+    "discount_amount": 200,
+    "total_price": 3800
+  },
+  {
+    "booking_item_id": "BI002",
+    "booking_id": "B001",
+    "item_id": "I010",
+    "unit_id": "U001",
+    "quantity_booked": 1,
+    "quantity_sent": 1,
+    "quantity_returned": 1,
+    "price_per_day": 5000,
+    "discount_amount": 0,
+    "total_price": 5000
   }
 ]
-##payments.json
+
+payments.json
 [
   {
     "payment_id": "P001",
     "booking_id": "B001",
     "amount": 10000,
     "payment_type": "Deposit",
-    "payment_date": "2026-05-20"
+    "payment_date": "2026-12-10"
   }
 ]
-##damages.json
-[
-  {
-    "damage_id": "D001",
-    "booking_id": "B001",
-    "item_id": "I001",
-    "quantity_damaged": 2,
-    "damage_type": "Broken",
-    "extra_charge": 500
-  }
-]
-Multiple Files Beacuse: 
+
+
+
+Why Multiple Files
 Easier to read
 Easier to debug
+Easier to manage separately
 Safer if one file becomes corrupted
+
 Problem When Business Grows
 
-If there are 5000 bookings per year, searching JSON files may become slow. A database may be needed later.
+If there are thousands of bookings, searching JSON files may become slower. A database may be needed later.
 
 
+5. Operations
 
-5 Operations
+(a) User adds a new customer.
+The system stores customer details and generates customer ID.
 
-User adds a new customer. The system saves customer details and shows the customer ID.
+Example:
+Ankit adds customer “Rajesh Agarwal” with phone number and address.
 
-User adds inventory items. The system stores item details and quantity.
-Example: Ankit adds 500 white chairs and 30 round tables into inventory.
+(b) User adds inventory items.
+The system stores item details and quantity.
 
-User checks item availability for specific dates. The system checks existing bookings and shows available quantity.
-Example: Customer asks for 250 chairs on 18 December, and system shows only 220 are free.
+Example:
+Ankit adds:
 
-User creates a booking. The system verifies item availability, saves the booking, and calculates total amount.
-Example: Booking includes 200 chairs, 4 fans, and 2 gas burners for a wedding.
+500 white chairs
+30 round tables
+12 pedestal fans
 
-User adds multiple items in one booking. The system calculates total cost for all items.
-Example: One booking contains chairs, tables, fans, sofa set, and shamiana.
+(c) User adds unique item units for expensive items.
+Example:
+The system stores:
+Sound System A
+Sound System B
+so both can be tracked separately.
 
-User records advance payment or deposit. The system updates remaining balance.
-Example: Customer pays ₹10,000 deposit for a ₹45,000 booking.
+(d) User checks item availability for specific dates.
+The system checks overlapping bookings before showing available quantity.
+Example:
+A customer asks for 250 chairs on 18 December and the system shows only 220 are available.
 
-User views all current bookings. The system displays active and upcoming bookings.
-Example: Rakesh ji checks all bookings for next week.
+(e) User creates a booking.
+The system verifies availability and stores booking details.
+Example:
+Booking includes:
 
-User searches booking by customer name or phone number. The system shows matching bookings.
-Example: Searching “Agarwal” shows all related bookings.
+200 chairs
+10 tables
+4 fans
+for a wedding event.
 
-User edits booking details. The system updates prices, quantities, and totals.
-Example: Customer increases chairs from 200 to 250.
+(f) User adds multiple items in one booking.
+The system calculates total cost for all items together.
+Example:
+One booking contains chairs, tables, sofa sets, fans, and shamiana items.
 
-User cancels a booking. The system restores item availability.
-Example: Customer postpones wedding and booking gets cancelled.
+(g) User records deposit or payment.
+The system stores payment records and calculates remaining amount whenever needed.
+Example:
+Customer pays ₹10,000 as advance payment for a ₹45,000 booking.
 
-User marks items as delivered. The system changes item status to “Out for Rent.”
-Example: Chairs and tables are sent to a farmhouse event.
+(h) User views all current and upcoming bookings.
+The system shows active and future events.
+Example:
+Rakesh ji checks all bookings for next week.
 
-User checks which items are currently out for rent. The system shows event details and return dates.
-Example: System shows pedestal fans are at a booking in Mahaveer Nagar.
+(i) User searches bookings using customer name or phone number.
+Example:
+Searching “Agarwal” shows all related bookings.
 
-User records returned items. The system updates inventory quantities.
-Example: After the event, 198 chairs are returned successfully.
+(j) User edits booking quantities or dates.
+The system rechecks availability before saving changes.
+Example:
+Customer increases chair quantity from 200 to 250.
 
-User reports damaged items. The system adds damage charges to customer balance.
-Example: Two plates are broken during the function.
+(k) User cancels a booking.
+The system removes that booking from availability calculations.
+Example:
+Customer postpones wedding and booking gets cancelled.
 
-User reports missing items. The system deducts charges from deposit.
-Example: One pedestal fan is missing after collection.
+(l) User marks items as delivered.
+The system updates delivery status.
+Example:
+Chairs and tables are sent to a farmhouse event.
 
-User checks pending payments. The system shows customers who still owe money.
-Example: Customer still has ₹8,000 remaining after event completion.
+(m) User checks which items are currently out for rent.
+Example:
+System shows pedestal fans are currently booked for an event in Mahaveer Nagar.
 
-User views damage and loss reports. The system shows total losses and damaged items.
-Example: System displays total damage cost for last month.
-   
-User closes the program. The system automatically saves all data in JSON files.
-Example: Next morning all bookings and records are still available.
+(n) User records returned quantities.
+The system updates returned quantity for booking items.
+Example:
+Out of 200 chairs, only 198 are returned.
 
+(o) User reports damaged items.
+The system stores damage details and extra charges.
+Example:
+Two dinner plates are reported broken after the event.
 
+(p) User reports missing items.
+The system records missing quantity and charges.
+Example:
+One pedestal fan is missing after collection.
 
+(q) User records late return charges.
+The system adds late fees to the booking.
+Example:
+Customer returns tables 2 days late.
 
-6  Things That Can Go Wrong
+(r) User checks pending payments.
+The system shows customers who still owe money.
+Example:
+Customer still has ₹8,000 remaining after the event.
 
-(a)JSON file missing on first run.
-System creates a new empty file automatically.
+(s) User views damage and loss reports.
+Example:
+System displays total damaged and missing items for the last month.
 
-(b)  Invalid date entered.
-System rejects input and asks again.
+(t) User closes the program.
+The system automatically saves all JSON data safely.
+Example:
+After restarting next morning, all bookings and inventory records are still available.
 
-(c)  Customer phone number entered incorrectly.
-System validates number length.
+(u) User checks idle inventory items.
+The system shows items that were rarely booked in a selected time period.
+Example:
+System shows that decorative sofa sets were booked only once last month.
 
-(d)  User tries booking more chairs than available.
-System blocks booking.
+(v) User checks daily activity schedule.
+The system shows deliveries, returns, and active bookings for a selected date.
+Example:
+Rakesh ji checks all deliveries and pickups happening on 22 December.
 
-(e) User enters negative quantity.
-System rejects value.
+6. Things That Can Go Wrong
+(a) JSON file missing on first run.
+    System creates empty file automatically.
+
+(b) Invalid date entered.
+   System rejects input.
+
+(c) Customer phone number entered incorrectly.
+   System validates number length.
+
+(d) User tries booking more items than available.
+   System blocks booking.
+
+(e) Negative quantity entered.
+   System rejects value.
 
 (f) Customer cancels after partial payment.
-System marks refund or pending adjustment.
+   System records refund adjustment.
 
 (g) Items returned late.
-System adds late charges.
+   System adds late charges.
 
 (h) Returned quantity exceeds booked quantity.
-System blocks entry.
+   System blocks entry.
 
 (i) Duplicate customer accidentally created.
-System warns if same phone number exists.
+   System warns if same phone number exists.
 
 (j) Program closes unexpectedly during save.
-System uses temporary save file before replacing original file.
+   System uses temporary save file before replacing original file.
 
-(k) User tries to close booking with missing items.
-System refuses until issue resolved.
+(k) Damage charges exceed deposit amount.
+   System shows extra pending amount.
 
-(l)  Damaged items exceed deposit value.
-System marks extra amount due.
+(l) Same unique item booked for overlapping dates.
+   System blocks booking.
 
-(m) Unique item already booked elsewhere.
-System blocks second booking.
-
-(n) Inventory file becomes corrupted.
-System creates backup recovery option.
-
-(o) Booking dates overlap incorrectly.
-System checks all active bookings before confirming.
+(m) Booking dates overlap incorrectly.
+   System checks all active bookings before confirming.
 
 
+7. One Thing I Don’t Know Yet
 
-7 One Thing I Don’t Know Yet
+I am not fully sure about the best way to calculate item availability efficiently when many bookings overlap on different dates.
 
-I am not fully sure about the best way to check item availability when multiple bookings have overlapping dates.
-I am unsure how to properly update inventory quantities when items are damaged, missing, or returned late
-I am unsure how to design a simple but user-friendly command-line menu system
+I am still unsure about the best way to design a simple but user-friendly command-line menu system.
+
+I may later move from JSON files to a database if the amount of data becomes very large
