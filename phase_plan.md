@@ -290,77 +290,183 @@ Phase 2 is complete when:
 
 
 # Phase 3 — Expanding Toward Real Tent House Operations
+
+Purpose
+After implementing inventory availability checking in Phase 2, I will gradually expand the system toward more realistic tent house operations.
+Instead of adding all remaining features together in one large step, I will divide this phase into smaller independently demoable sub-phases.
+This will help me:
+-keep the codebase manageable,
+-test each workflow separately,
+-and ensure the application remains stable after every addition.
+
+Step 1 — Multiple Inventory Item Types
 Purpose
 
-In Phase 3, I will expand the project from a simple booking prototype into a more realistic tent house management system.
+Until Phase 2, the system only supports one inventory item type.
 
-The goal is to gradually add the operational parts of the business while still keeping the system testable after every addition.
+In this sub-phase, I will extend the system to support multiple inventory items within the same booking.
 
-Features Added in Phase 3
-In this phase, I will gradually add:
+Example items:
 
--multiple inventory item types,
--customer details,
--payment tracking,
--booking status management,
--delivery tracking,
--return tracking,
--and damaged item recording.
+chairs
+tables
+tents
+lights
+Features Added
+
+I will add:
+-support for multiple inventory item types,
+-bookings containing multiple items,
+-and availability checking for each item independently.
 
 Problem Being Solved
-At this stage, the software should begin handling the day-to-day operational flow of the tent house business instead of only availability calculations.
+The owner should now be able to manage realistic bookings involving different tent house items instead of only one inventory type.
 
-The owner should now be able to:
+End-to-End Demo
+I should be able to:
+-create multiple inventory item types,
+-create bookings containing different items,
+-verify availability separately for each item,
+-restart the application,
+=and confirm all inventory and booking data persists correctly.
 
--manage different rented items together,
--track payments,
--and monitor delivery and return status.
+Tests/Checks
+
+I will test:
+
+multi-item bookings,
+item-wise availability checking,
+overlapping bookings for different items,
+and persistence after restart.
+Definition of Done
+
+Step 1 is complete when:
+bookings can contain multiple item types,
+availability works correctly for each item,
+and all data persists correctly after restart.
+
+Step 2 — Customer Details and Payment Tracking
+Purpose
+In this sub-phase, I will add customer and payment information to bookings.
+The goal is to help track:
+who made the booking,
+how much payment is required,
+how much advance was paid,
+and how much payment is still pending.
+Features Added
+
+I will add:
+            customer contact details,
+            booking payment amount,
+            advance payment tracking,
+            pending balance calculation,
+            and payment status.
 
 
-Example Capabilities
-A booking may now include:
-chairs,
-tables,
-tents,
-lights,
-etc.
+Problem Being Solved
+The owner should now be able to track customer bookings and payment progress instead of managing payments manually.
 
-The system should also track:
-
-whether items were delivered,
-whether they were returned,
-whether payment is pending,
-and whether any items were damaged.
-
-
-End-to-End Demo for Phase 3
-
+End-to-End Demo
 I should be able to:
 
-1 create inventory for multiple item types,
-2 create bookings containing multiple items,
-3 track payment status,
-4 mark deliveries and returns,
-5 record damaged items,
-6 restart the application,
-7 and confirm all data persists correctly.
-
+                    create a booking with customer details,
+                    record advance payment,
+                    calculate remaining balance,
+                    update payment status,
+                    restart the application,
+                    and confirm payment data persists correctly.
 
 Tests/Checks
 I will test:
-multi-item bookings,
-payment updates,
-delivery/return flows,
-damaged item recording,
-and inventory consistency after returns.
+
+            payment calculations,
+            advance payment updates,
+            pending balance calculations,
+            and persistence after restart.
 
 
-Phase 3 is complete when:
+Step 2 is complete when:
+customer information is stored correctly,
+payment tracking works properly,
+and payment data persists safely after restart.
 
--the system supports realistic tent house operations,
--booking workflows remain stable,
--inventory stays consistent,
--and all data persists correctly.
+
+Step 3 — Delivery and Return Tracking
+Purpose
+In this sub-phase, I will track delivery and return operations for booked inventory.
+The goal is to monitor whether booked items:
+were delivered,
+were returned,
+and became available again after return.
+Features Added
+
+I will add:
+           delivery status,
+           return status,
+           booking status updates,
+           and inventory updates after return.
+
+
+Problem Being Solved
+The owner should now be able to track the movement of inventory items instead of only booking information.
+
+End-to-End Demo
+I should be able to:
+                   create a booking,
+                   mark items as delivered,
+                   mark items as returned,
+                   verify returned inventory becomes available again,
+                   restart the application,
+                   and confirm delivery/return data persists correctly.
+
+Tests/Checks
+I will test:
+            delivery status updates,
+            return workflows,
+            inventory restoration after return,
+            and persistence after restart.
+
+
+Step 3 is complete when:
+delivery and return tracking work correctly,
+inventory updates properly after returns,
+and all operational data persists correctly.
+
+Step 4 — Damaged Item Tracking
+Purpose
+In this sub-phase, I will handle damaged inventory items returned after events.
+The goal is to prevent damaged inventory from incorrectly appearing as available inventory.
+
+Features Added
+I will add:
+           damaged quantity recording,
+           damage notes/reasons,
+           and usable inventory reduction.
+
+
+Problem Being Solved
+The owner should now be able to separate usable inventory from damaged inventory.
+
+End-to-End Demo
+I should be able to:
+                    mark returned items as damaged,
+                    reduce usable inventory quantity,
+                    prevent damaged inventory from being booked,
+                    restart the application,
+                    and confirm damage records persist correctly.
+
+Tests/Checks
+I will test:
+damaged inventory recording,
+inventory reduction after damage,
+booking prevention for damaged stock,
+and persistence after restart.
+
+
+Step 4 is complete when:
+damaged inventory is tracked correctly,
+damaged items cannot be booked,
+and inventory consistency remains correct after damage handling.
 
 
 # Phase 4 — Error Handling and Real Wedding Season Scenarios
