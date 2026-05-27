@@ -127,50 +127,49 @@ def update_quantity():
 
     print("\nMatching Items:")
 
-    for item in matches:
+    for index, item in enumerate(matches, start=1):
 
-        print(f"ID: {item['item_id']}")
-        print(f"Item: {item['item_name']}")
-        print(f"Current Quantity: {item['quantity']}")
-        print("-" * 20)
-
-    try:
-        item_id = int(
-            input("Enter item ID to update: ")
+        print(
+            f"{index}. "
+            f"{item['item_name']} "
+            f"(Current Quantity: {item['quantity']})"
         )
 
-    except ValueError:
-        print("Please enter a valid item ID.")
-        return
+    try:
+        choice = int(
+            input("Enter choice number: ")
+        )
 
-    for item in matches:
-
-        if item["item_id"] == item_id:
-
-            try:
-                new_quantity = int(
-                    input(
-                        "Enter new quantity (example: 120): "
-                    )
-                )
-
-                if new_quantity < 0:
-                    print("Quantity cannot be negative.")
-                    return
-
-            except ValueError:
-                print("Please enter a valid number.")
-                return
-
-            item["quantity"] = new_quantity
-
-            save_inventory(inventory)
-
-            print("Quantity updated successfully.")
+        if choice < 1 or choice > len(matches):
+            print("Invalid choice.")
             return
 
-    print("Item ID not found in matching results.")
+    except ValueError:
+        print("Please enter a valid number.")
+        return
 
+    selected_item = matches[choice - 1]
+
+    try:
+        new_quantity = int(
+            input(
+                "Enter new quantity (example: 120): "
+            )
+        )
+
+        if new_quantity < 0:
+            print("Quantity cannot be negative.")
+            return
+
+    except ValueError:
+        print("Please enter a valid number.")
+        return
+
+    selected_item["quantity"] = new_quantity
+
+    save_inventory(inventory)
+
+    print("Quantity updated successfully.")
 
 def delete_item():
 
@@ -194,39 +193,39 @@ def delete_item():
 
     print("\nMatching Items:")
 
-    for item in matches:
+    for index, item in enumerate(matches, start=1):
 
-        print(f"ID: {item['item_id']}")
-        print(f"Item: {item['item_name']}")
-        print(f"Quantity: {item['quantity']}")
-        print("-" * 20)
-
-    try:
-        item_id = int(
-            input("Enter item ID to delete: ")
+        print(
+            f"{index}. "
+            f"{item['item_name']} "
+            f"(Quantity: {item['quantity']})"
         )
 
-    except ValueError:
-        print("Please enter a valid item ID.")
-        return
+    try:
+        choice = int(
+            input("Enter choice number: ")
+        )
 
-    for item in matches:
-
-        if item["item_id"] == item_id:
-
-            confirm = input(
-                "Are you sure you want to delete this item? (y/n): "
-            ).lower()
-
-            if confirm != "y":
-                print("Delete cancelled.")
-                return
-
-            inventory.remove(item)
-
-            save_inventory(inventory)
-
-            print("Item deleted successfully.")
+        if choice < 1 or choice > len(matches):
+            print("Invalid choice.")
             return
 
-    print("Item ID not found in matching results.")
+    except ValueError:
+        print("Please enter a valid number.")
+        return
+
+    selected_item = matches[choice - 1]
+
+    confirm = input(
+        "Are you sure you want to delete this item? (y/n): "
+    ).lower()
+
+    if confirm != "y":
+        print("Delete cancelled.")
+        return
+
+    inventory.remove(selected_item)
+
+    save_inventory(inventory)
+
+    print("Item deleted successfully.")
