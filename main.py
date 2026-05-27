@@ -1,6 +1,7 @@
 from inventory import (
     add_item,
     view_items,
+    search_items,
     update_quantity,
     delete_item
 )
@@ -14,12 +15,13 @@ def main():
 
         print("1. Add Item")
         print("2. View Items")
-        print("3. Update Quantity")
-        print("4. Delete Item")
-        print("5. Exit")
+        print("3. Search Item")
+        print("4. Update Quantity")
+        print("5. Delete Item")
+        print("6. Exit")
 
         choice = input(
-            "\nEnter your choice (1-5): "
+            "\nEnter your choice (1-6): "
         )
 
         if choice == "1":
@@ -29,19 +31,22 @@ def main():
             view_items()
 
         elif choice == "3":
-            update_quantity()
+            search_items()
 
         elif choice == "4":
-            delete_item()
+            update_quantity()
 
         elif choice == "5":
+            delete_item()
+
+        elif choice == "6":
             print("Exiting program...")
             break
 
         else:
             print(
                 "Invalid choice. "
-                "Please enter a number from 1 to 5."
+                "Please enter a number from 1 to 6."
             )
 
 

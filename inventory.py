@@ -75,6 +75,36 @@ def view_items():
         print("-" * 20)
 
 
+def search_items():
+
+    if not inventory:
+        print("No inventory items found.")
+        return
+
+    search_name = input(
+        "Enter item name to search: "
+    ).strip()
+
+    matches = find_item_by_name(search_name)
+
+    if not matches:
+        print("No matching item found.")
+
+        print("\nCurrent Inventory:")
+        view_items()
+
+        return
+
+    print("\nSearch Results:")
+
+    for item in matches:
+
+        print(f"ID: {item['item_id']}")
+        print(f"Item: {item['item_name']}")
+        print(f"Quantity: {item['quantity']}")
+        print("-" * 20)
+
+
 def update_quantity():
 
     print("\nCurrent Inventory:")
@@ -87,7 +117,12 @@ def update_quantity():
     matches = find_item_by_name(search_name)
 
     if not matches:
+
         print("No matching item found.")
+
+        print("\nCurrent Inventory:")
+        view_items()
+
         return
 
     print("\nMatching Items:")
@@ -149,7 +184,12 @@ def delete_item():
     matches = find_item_by_name(search_name)
 
     if not matches:
+
         print("No matching item found.")
+
+        print("\nCurrent Inventory:")
+        view_items()
+
         return
 
     print("\nMatching Items:")
@@ -173,6 +213,14 @@ def delete_item():
     for item in matches:
 
         if item["item_id"] == item_id:
+
+            confirm = input(
+                "Are you sure you want to delete this item? (y/n): "
+            ).lower()
+
+            if confirm != "y":
+                print("Delete cancelled.")
+                return
 
             inventory.remove(item)
 
