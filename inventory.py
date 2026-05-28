@@ -4,25 +4,17 @@ inventory = load_inventory()
 
 
 def generate_item_id():
-
     if not inventory:
         return 1
-
-    max_id = max(item["item_id"] for item in inventory)
-
-    return max_id + 1
+    return max(item["item_id"] for item in inventory) + 1
 
 
 def find_item_by_name(search_name):
+    return [
+        item for item in inventory
+        if search_name.lower() in item["item_name"].lower()
+    ]
 
-    matches = []
-
-    for item in inventory:
-
-        if search_name.lower() in item["item_name"].lower():
-            matches.append(item)
-
-    return matches
 
 
 def add_item():
@@ -33,17 +25,21 @@ def add_item():
         print("Item name cannot be empty.")
         return
 
+    # duplicate check
+    for item in inventory:
+        if item["item_name"].lower() == item_name.lower():
+            print("Item already exists.")
+            return
+
     try:
-        quantity = int(
-            input("Enter quantity (example: 100): ")
-        )
+        quantity = int(input("Enter quantity: "))
 
         if quantity < 0:
             print("Quantity cannot be negative.")
             return
 
     except ValueError:
-        print("Please enter a valid number.")
+        print("Invalid number.")
         return
 
     item = {
@@ -53,179 +49,113 @@ def add_item():
     }
 
     inventory.append(item)
-
     save_inventory(inventory)
 
-    print("Item added successfully.")
+    print(f"{item_name} added successfully.")
 
 
+# ---------------- VIEW + SEARCH + ACTION SYSTEM ----------------
 def view_items():
 
     if not inventory:
         print("No inventory items found.")
         return
 
-    print("\nInventory Items:")
+    print("\n===== INVENTORY =====")
 
-    for item in inventory:
+    for index, item in enumerate(inventory, start=1):
+        print(f"{index}. ID:{item['item_id']} | {item['item_name']} | Qty:{item['quantity']}")
 
-        print(f"ID: {item['item_id']}")
-        print(f"Item: {item['item_name']}")
-        print(f"Quantity: {item['quantity']}")
-        print("-" * 20)
+    print("\nOptions:")
+    print("1. Search Item")
+    print("2. Back")
+
+    choice = input("Enter choice: ")
+
+    if choice == "1":
+        search_items()
+
+    else:
+        return
 
 
+# ---------------- SEARCH + ACTION  ----------------
 def search_items():
 
     if not inventory:
         print("No inventory items found.")
         return
 
-    search_name = input(
-        "Enter item name to search: "
-    ).strip()
+    search_name = input("Enter item name to search: ").strip()
 
     matches = find_item_by_name(search_name)
 
     if not matches:
         print("No matching item found.")
-
-        print("\nCurrent Inventory:")
-        view_items()
-
         return
 
     print("\nSearch Results:")
 
-    for item in matches:
-
-        print(f"ID: {item['item_id']}")
-        print(f"Item: {item['item_name']}")
-        print(f"Quantity: {item['quantity']}")
-        print("-" * 20)
-
-
-def update_quantity():
-
-    print("\nCurrent Inventory:")
-    view_items()
-
-    search_name = input(
-        "\nEnter item name to update: "
-    ).strip()
-
-    matches = find_item_by_name(search_name)
-
-    if not matches:
-
-        print("No matching item found.")
-
-        print("\nCurrent Inventory:")
-        view_items()
-
-        return
-
-    print("\nMatching Items:")
-
     for index, item in enumerate(matches, start=1):
-
-        print(
-            f"{index}. "
-            f"{item['item_name']} "
-            f"(Current Quantity: {item['quantity']})"
-        )
+        print(f"{index}. {item['item_name']} (Qty: {item['quantity']})")
 
     try:
-        choice = int(
-            input("Enter choice number: ")
-        )
+        choice = int(input("\nSelect item number: "))
 
         if choice < 1 or choice > len(matches):
             print("Invalid choice.")
             return
 
     except ValueError:
-        print("Please enter a valid number.")
+        print("Invalid input.")
         return
 
     selected_item = matches[choice - 1]
 
-    try:
-        new_quantity = int(
-            input(
-                "Enter new quantity (example: 120): "
-            )
-        )
+    print(f"\nSelected: {selected_item['item_name']}")
 
-        if new_quantity < 0:
-            print("Quantity cannot be negative.")
+    print("\n1. View")
+    print("2. Update Quantity")
+    print("3. Delete")
+    print("4. Exit")
+
+    action = input("Enter action: ")
+
+   
+    if action == "1":
+        print(f"\nID: {selected_item['item_id']}")
+        print(f"Item: {selected_item['item_name']}")
+        print(f"Quantity: {selected_item['quantity']}")
+
+    
+    elif action == "2":
+        try:
+            new_qty = int(input("Enter new quantity: "))
+
+            if new_qty < 0:
+                print("Quantity cannot be negative.")
+                return
+
+        except ValueError:
+            print("Invalid number.")
             return
 
-    except ValueError:
-        print("Please enter a valid number.")
-        return
+        selected_item["quantity"] = new_qty
+        save_inventory(inventory)
 
-    selected_item["quantity"] = new_quantity
+        print(f"{selected_item['item_name']} quantity updated successfully.")
 
-    save_inventory(inventory)
+   
+    elif action == "3":
+        confirm = input("Are you sure you want to delete this item? (y/n): ").lower()
 
-    print("Quantity updated successfully.")
+        if confirm == "y":
+            inventory.remove(selected_item)
+            save_inventory(inventory)
 
-def delete_item():
+            print(f"{selected_item['item_name']} deleted successfully.")
+        else:
+            print("Delete cancelled.")
 
-    print("\nCurrent Inventory:")
-    view_items()
-
-    search_name = input(
-        "\nEnter item name to delete: "
-    ).strip()
-
-    matches = find_item_by_name(search_name)
-
-    if not matches:
-
-        print("No matching item found.")
-
-        print("\nCurrent Inventory:")
-        view_items()
-
-        return
-
-    print("\nMatching Items:")
-
-    for index, item in enumerate(matches, start=1):
-
-        print(
-            f"{index}. "
-            f"{item['item_name']} "
-            f"(Quantity: {item['quantity']})"
-        )
-
-    try:
-        choice = int(
-            input("Enter choice number: ")
-        )
-
-        if choice < 1 or choice > len(matches):
-            print("Invalid choice.")
-            return
-
-    except ValueError:
-        print("Please enter a valid number.")
-        return
-
-    selected_item = matches[choice - 1]
-
-    confirm = input(
-        "Are you sure you want to delete this item? (y/n): "
-    ).lower()
-
-    if confirm != "y":
-        print("Delete cancelled.")
-        return
-
-    inventory.remove(selected_item)
-
-    save_inventory(inventory)
-
-    print("Item deleted successfully.")
+    else:
+        print("Exit.")
