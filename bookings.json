@@ -1,0 +1,26 @@
+[
+    {
+        "booking_id": 1,
+        "customer_name": "Pankaj",
+        "occasion": "Marriage",
+        "item_id": 6,
+        "item_name": "Plastic chairs",
+        "quantity": 70,
+        "booking_start_date": "2026-06-08",
+        "booking_end_date": "2026-06-13",
+        "function_start_date": "2026-06-09",
+        "function_end_date": "2026-06-12"
+    },
+    {
+        "booking_id": 2,
+        "customer_name": "sourav",
+        "occasion": "Birthday Party",
+        "item_id": 6,
+        "item_name": "Plastic chairs",
+        "quantity": 30,
+        "booking_start_date": "2026-06-08",
+        "booking_end_date": "2026-06-10",
+        "function_start_date": "2026-06-09",
+        "function_end_date": "2026-06-09"
+    }
+]
