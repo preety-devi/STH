@@ -193,8 +193,7 @@ Purpose
 
 In Phase 2, I will implement the core business problem of the tent house system: availability checking across booking dates.
 
-This phase introduces basic booking logic, but I will still keep the system intentionally small by using only one inventory item type.
-The goal is to prove that the software can correctly prevent overbooking.
+This phase introduces booking management and date-based inventory allocation while still keeping the system intentionally small. The goal is to prove that the software can correctly determine whether inventory is available for a requested booking period and prevent overbooking.
 
 Problem Being Solved
 Rakesh ji’s business depends on answering one critical question quickly and correctly:
@@ -206,6 +205,10 @@ Scope of Phase 2
 This phase adds:
 -booking creation,
 -booking storage,
+-customer details
+-occasion selection
+-function dates
+-booking dates
 -date handling,
 -overlap checking,
 -and availability validation.
@@ -221,18 +224,49 @@ Features Included
 1. Create Booking
 The user can enter:
 
-customer name,
-start date,
-end date,
-quantity required.
+customer name
+occasion
+booking start date
+booking end date
+function start date
+function end date
+quantity required
 
 Example:
-Customer Name: Rahul Wedding
-Start Date: 2026-06-10
-End Date: 2026-06-12
-Quantity Needed: 40
 
-2. Availability Checking
+Customer Name: Rahul
+Occasion: Marriage
+Booking Start Date: 2026-06-08
+Booking End Date: 2026-06-13
+Function Start Date: 2026-06-10
+Function End Date: 2026-06-12
+Quantity Required: 40
+
+
+2. Occasion Selection
+The system will support common tent house event types:
+
+Marriage
+Birthday Party
+Reception
+Grand Party
+Corporate Event
+Other
+
+This helps make booking records more meaningful.
+
+3. Date Validation
+
+The system must validate:
+
+correct date format (YYYY-MM-DD)
+booking start date is before booking end date
+function start date is before function end date
+function dates fall within booking dates
+
+Invalid date combinations will be rejected
+
+4. Availability Checking
 
 Before saving a booking, I will calculate:
 -total inventory,
@@ -240,54 +274,73 @@ Before saving a booking, I will calculate:
 -and remaining available quantity.
 The booking will only succeed if enough inventory is available.
 
-Example of Overlap Logic
-If total inventory is: 100 Plastic Chairs
-And one booking already reserves: 60 chairs
-                                  10 June - 12 June
+Overlap Detection
 
-Then another booking requesting: 50 chairs
-                                 11 June - 13 June
+Availability calculations will use:
+Booking Start Date
+Booking End Date
+because inventory is unavailable during the entire rental period, not just during the function itself.
 
-must be rejected because:
+Example:
+Total Inventory:
+100 Plastic Chairs
+Existing Booking:
+60 Chairs
+Booking Dates:
+10 June – 12 June
+New Request:
+50 Chairs
+Booking Dates:
+11 June – 13 June
 
--overlapping dates would require 110 chairs,
--but only 100 exist.
+Result:
+Booking must be rejected because:
+60 + 50 = 110
+Available Inventory = 100
+Therefore inventory is overbooked.
 
 End-to-End Demo for Phase 2
+
 I should be able to:
 
-1 create inventory,
-2 create valid bookings,
-3 reject overbooked requests,
-4 restart the application,
-5 and confirm bookings still exist.
+1 Create inventory items
+2 Search inventory while booking
+3 Create valid bookings
+4 Reject overbooked bookings
+5 Reject invalid date combinations
+6 Restart the application
+7 Confirm bookings persist correctly
 
 This proves:
+availability calculation works
+overlap detection works
+overbooking prevention works
+search functionality works
+persistence works
+Tests / Checks
 
--overlap detection works,
--overbooking prevention works,
--and persistence still works.
-
-
-Tests/Checks
 I will test:
 
--overlapping bookings,
--valid booking creation,
--overbooking rejection,
--invalid dates,
--persistence after restart,
--and quantity validation.
+valid booking creation
+overlapping bookings
+overbooking rejection
+invalid booking dates
+invalid function dates
+case-insensitive item search
+partial-name item search
+persistence after restart
+quantity validation
 
+Phase 2 is Complete When
 
-Phase 2 is complete when:
-
--bookings can be created successfully,
--overlapping inventory is calculated correctly,
--overbooking is prevented,
--and the entire phase works independently end-to-end.
-
-
+bookings can be created successfully
+availability is calculated correctly
+overlapping bookings are detected correctly
+overbooking is prevented
+booking and function dates are validated
+inventory search works using partial and case-insensitive matching
+all booking data persists correctly
+the entire phase works independently end-to-end
 
 # Phase 3 — Expanding Toward Real Tent House Operations
 
