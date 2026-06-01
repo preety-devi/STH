@@ -7,7 +7,9 @@ from booking import (
     create_booking,
     view_bookings,
     mark_delivered,
-    mark_returned
+    mark_returned,
+    update_payment,
+    
 )
 
 
@@ -21,12 +23,13 @@ def main():
         print("2. View Inventory")
         print("3. Create Booking")
         print("4. View Bookings")
-        print("5. Mark Delivered")
-        print("6. Mark Returned")
-        print("7. Exit")
+        print("5. Update Payment")
+        print("6. Mark Delivered")
+        print("7. Mark Returned")
+        print("8. Exit")
 
         choice = input(
-            "\nEnter your choice (1-7): "
+            "\nEnter your choice (1-8): "
         )
 
         if choice == "1":
@@ -42,14 +45,20 @@ def main():
             view_bookings()
 
         elif choice == "5":
-          mark_delivered()
+          update_payment()
 
         elif choice == "6":
-          mark_returned()
+          mark_delivered()
 
         elif choice == "7":
-          print("Exiting program...")
-          break
+          mark_returned()
+
+       
+
+        elif choice == "8":
+            print("Exiting program...")
+
+            break
 
         else:
             print("Invalid choice.")

@@ -26,12 +26,24 @@
         "function_end_date": "2026-06-03",
         "payment": {
             "total_amount": 1750.0,
-            "advance_paid": 500.0,
-            "pending_amount": 1250.0,
+            "advance_paid": 1250.0,
+            "pending_amount": 500.0,
             "status": "Pending"
         },
-        "delivery_status": "Pending",
-        "return_status": "Pending",
-        "booking_status": "Booked"
+        "delivery_status": "Delivered",
+        "return_status": "Returned",
+        "booking_status": "Completed",
+        "damaged_items": [
+            {
+                "item_name": "chair",
+                "quantity": 2,
+                "reason": "Transport Damage"
+            },
+            {
+                "item_name": "table",
+                "quantity": 1,
+                "reason": "broken by customer"
+            }
+        ]
     }
 ]

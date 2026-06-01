@@ -415,20 +415,163 @@ def mark_returned():
 
         if booking["booking_id"] == booking_id:
 
+            if booking["delivery_status"] != "Delivered":
+
+                print(
+                    "Booking must be delivered first."
+                )
+
+                return
+
             if booking["return_status"] == "Returned":
+
                 print("Already returned.")
                 return
 
+            damage = input(
+                "Any damaged items? (y/n): "
+            ).lower()
+
+            if damage == "y":
+
+                if "damaged_items" not in booking:
+                    booking["damaged_items"] = []
+
+                item_name = input(
+                    "Damaged Item Name: "
+                ).strip()
+
+                try:
+
+                    qty = int(
+                        input(
+                            "Damaged Quantity: "
+                        )
+                    )
+
+                except ValueError:
+
+                    print(
+                        "Invalid quantity."
+                    )
+
+                    return
+
+                reason = input(
+                    "Reason: "
+                ).strip()
+
+                booking["damaged_items"].append(
+                    {
+                        "item_name": item_name,
+                        "quantity": qty,
+                        "reason": reason
+                    }
+                )
+
             booking["return_status"] = "Returned"
+
             booking["booking_status"] = "Completed"
 
             save_bookings(bookings)
 
-            print("Booking marked as returned.")
+            print(
+                "Booking marked as returned."
+            )
+
             return
 
     print("Booking not found.")
 
+def update_payment():
+
+    booking_id = input(
+        "Enter Booking ID: "
+    )
+
+    try:
+        booking_id = int(booking_id)
+
+    except ValueError:
+        print("Invalid Booking ID.")
+        return
+
+    for booking in bookings:
+
+        if booking["booking_id"] == booking_id:
+
+            if "payment" not in booking:
+                print("No payment information found.")
+                return
+
+            print(
+                f"Current Pending Amount: "
+                f"{booking['payment']['pending_amount']}"
+            )
+
+            try:
+
+                amount_received = float(
+                    input(
+                        "Enter Amount Received: "
+                    )
+                )
+
+                if amount_received <= 0:
+                    print(
+                        "Amount must be greater than zero."
+                    )
+                    return
+
+            except ValueError:
+                print("Invalid amount.")
+                return
+
+            if (
+                amount_received >
+                booking["payment"]["pending_amount"]
+            ):
+
+                print(
+                    "Amount cannot be greater "
+                    "than pending amount."
+                )
+                return
+
+            booking["payment"]["advance_paid"] += (
+                amount_received
+            )
+
+            booking["payment"]["pending_amount"] -= (
+                amount_received
+            )
+
+            if (
+                booking["payment"]["pending_amount"]
+                == 0
+            ):
+
+                booking["payment"]["status"] = "Paid"
+
+            save_bookings(bookings)
+
+            print(
+                "Payment updated successfully."
+            )
+
+            print(
+                f"Remaining Pending Amount: "
+                f"{booking['payment']['pending_amount']}"
+            )
+
+            print(
+                f"Payment Status: "
+                f"{booking['payment']['status']}"
+            )
+
+            return
+
+    print("Booking not found.")
 
 def view_bookings():
     if not bookings:
@@ -480,3 +623,4 @@ def view_bookings():
         print(f"Booking Status: {booking.get('booking_status')}")
 
         print("-" * 40)
+
