@@ -16,7 +16,6 @@ def find_item_by_name(search_name):
     ]
 
 
-
 def add_item():
 
     item_name = input("Enter item name: ").strip()
@@ -42,10 +41,24 @@ def add_item():
         print("Invalid number.")
         return
 
+    try:
+        rent_price = float(
+            input("Enter rent price per unit: ")
+        )
+
+        if rent_price < 0:
+            print("Rent price cannot be negative.")
+            return
+
+    except ValueError:
+        print("Invalid rent price.")
+        return
+
     item = {
         "item_id": generate_item_id(),
         "item_name": item_name,
-        "quantity": quantity
+        "quantity": quantity,
+        "rent_price": rent_price
     }
 
     inventory.append(item)
@@ -64,7 +77,13 @@ def view_items():
     print("\n===== INVENTORY =====")
 
     for index, item in enumerate(inventory, start=1):
-        print(f"{index}. ID:{item['item_id']} | {item['item_name']} | Qty:{item['quantity']}")
+        print(
+            f"{index}. "
+            f"ID:{item['item_id']} | "
+            f"{item['item_name']} | "
+            f"Qty:{item['quantity']} | "
+            f"Rent: ₹{item['rent_price']}"
+        )
 
     print("\nOptions:")
     print("1. Search Item")
@@ -79,14 +98,16 @@ def view_items():
         return
 
 
-# ---------------- SEARCH + ACTION  ----------------
+# ---------------- SEARCH + ACTION ----------------
 def search_items():
 
     if not inventory:
         print("No inventory items found.")
         return
 
-    search_name = input("Enter item name to search: ").strip()
+    search_name = input(
+        "Enter item name to search: "
+    ).strip()
 
     matches = find_item_by_name(search_name)
 
@@ -97,10 +118,17 @@ def search_items():
     print("\nSearch Results:")
 
     for index, item in enumerate(matches, start=1):
-        print(f"{index}. {item['item_name']} (Qty: {item['quantity']})")
+        print(
+            f"{index}. "
+            f"{item['item_name']} "
+            f"(Qty: {item['quantity']}) "
+            f"(Rent: ₹{item['rent_price']})"
+        )
 
     try:
-        choice = int(input("\nSelect item number: "))
+        choice = int(
+            input("\nSelect item number: ")
+        )
 
         if choice < 1 or choice > len(matches):
             print("Invalid choice.")
@@ -112,7 +140,10 @@ def search_items():
 
     selected_item = matches[choice - 1]
 
-    print(f"\nSelected: {selected_item['item_name']}")
+    print(
+        f"\nSelected: "
+        f"{selected_item['item_name']}"
+    )
 
     print("\n1. View")
     print("2. Update Quantity")
@@ -121,19 +152,41 @@ def search_items():
 
     action = input("Enter action: ")
 
-   
     if action == "1":
-        print(f"\nID: {selected_item['item_id']}")
-        print(f"Item: {selected_item['item_name']}")
-        print(f"Quantity: {selected_item['quantity']}")
 
-    
+        print(
+            f"\nID: "
+            f"{selected_item['item_id']}"
+        )
+
+        print(
+            f"Item: "
+            f"{selected_item['item_name']}"
+        )
+
+        print(
+            f"Quantity: "
+            f"{selected_item['quantity']}"
+        )
+
+        print(
+            f"Rent Price: "
+            f"₹{selected_item['rent_price']}"
+        )
+
     elif action == "2":
+
         try:
-            new_qty = int(input("Enter new quantity: "))
+            new_qty = int(
+                input(
+                    "Enter new quantity: "
+                )
+            )
 
             if new_qty < 0:
-                print("Quantity cannot be negative.")
+                print(
+                    "Quantity cannot be negative."
+                )
                 return
 
         except ValueError:
@@ -141,19 +194,31 @@ def search_items():
             return
 
         selected_item["quantity"] = new_qty
+
         save_inventory(inventory)
 
-        print(f"{selected_item['item_name']} quantity updated successfully.")
+        print(
+            f"{selected_item['item_name']} "
+            f"quantity updated successfully."
+        )
 
-   
     elif action == "3":
-        confirm = input("Are you sure you want to delete this item? (y/n): ").lower()
+
+        confirm = input(
+            "Are you sure you want to delete this item? (y/n): "
+        ).lower()
 
         if confirm == "y":
+
             inventory.remove(selected_item)
+
             save_inventory(inventory)
 
-            print(f"{selected_item['item_name']} deleted successfully.")
+            print(
+                f"{selected_item['item_name']} "
+                f"deleted successfully."
+            )
+
         else:
             print("Delete cancelled.")
 

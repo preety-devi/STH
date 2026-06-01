@@ -1,26 +1,37 @@
 [
     {
-        "booking_id": 1,
-        "customer_name": "Pankaj",
-        "occasion": "Marriage",
-        "item_id": 6,
-        "item_name": "Plastic chairs",
-        "quantity": 70,
-        "booking_start_date": "2026-06-08",
-        "booking_end_date": "2026-06-13",
-        "function_start_date": "2026-06-09",
-        "function_end_date": "2026-06-12"
-    },
-    {
-        "booking_id": 2,
-        "customer_name": "sourav",
-        "occasion": "Birthday Party",
-        "item_id": 6,
-        "item_name": "Plastic chairs",
-        "quantity": 30,
-        "booking_start_date": "2026-06-08",
-        "booking_end_date": "2026-06-10",
-        "function_start_date": "2026-06-09",
-        "function_end_date": "2026-06-09"
+        "booking_id": 10,
+        "customer_id": 1,
+        "occasion": "Birthday",
+        "items": [
+            {
+                "item_id": 4,
+                "item_name": "Table",
+                "quantity": 10
+            },
+            {
+                "item_id": 2,
+                "item_name": "Wooden chairs",
+                "quantity": 50
+            },
+            {
+                "item_id": 5,
+                "item_name": "Shamiana",
+                "quantity": 1
+            }
+        ],
+        "booking_start_date": "2026-06-01",
+        "booking_end_date": "2026-06-04",
+        "function_start_date": "2026-06-03",
+        "function_end_date": "2026-06-03",
+        "payment": {
+            "total_amount": 1750.0,
+            "advance_paid": 500.0,
+            "pending_amount": 1250.0,
+            "status": "Pending"
+        },
+        "delivery_status": "Pending",
+        "return_status": "Pending",
+        "booking_status": "Booked"
     }
 ]

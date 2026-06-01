@@ -42,3 +42,24 @@ def save_bookings(bookings):
 
     with open(BOOKING_FILE, "w") as file:
         json.dump(bookings, file, indent=4)
+
+CUSTOMER_FILE = "customers.json"
+
+
+def load_customers():
+
+    if not os.path.exists(CUSTOMER_FILE):
+        return []
+
+    try:
+        with open(CUSTOMER_FILE, "r") as file:
+            return json.load(file)
+
+    except json.JSONDecodeError:
+        return []
+
+
+def save_customers(customers):
+
+    with open(CUSTOMER_FILE, "w") as file:
+        json.dump(customers, file, indent=4)
