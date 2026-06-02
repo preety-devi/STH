@@ -3,5 +3,20 @@
         "customer_id": 1,
         "customer_name": "Pankaj",
         "customer_phone": "9906388961"
+    },
+    {
+        "customer_id": 2,
+        "customer_name": "Pankaj",
+        "customer_phone": "9908763757"
+    },
+    {
+        "customer_id": 3,
+        "customer_name": "Pankaj",
+        "customer_phone": "988765328"
+    },
+    {
+        "customer_id": 4,
+        "customer_name": "Krish",
+        "customer_phone": "7889530355"
     }
 ]

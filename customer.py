@@ -5,6 +5,22 @@ from storage import (
 
 customers = load_customers()
 
+def view_customers():
+
+    if not customers:
+
+        print("No customers found.")
+        return
+
+    print("\n===== CUSTOMERS =====")
+
+    for customer in customers:
+
+        print(
+            f"{customer['customer_id']} | "
+            f"{customer['customer_name']} | "
+            f"{customer['customer_phone']}"
+        )
 
 def generate_customer_id():
 

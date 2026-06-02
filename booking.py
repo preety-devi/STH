@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from customer import customers
 
 from storage import (
@@ -49,36 +50,36 @@ def get_occasion():
 def validate_dates(
     booking_start,
     booking_end,
-    function_start,
-    function_end
+    occasion_start,
+    occasion_end
 ):
 
     try:
 
         booking_start = datetime.strptime(
             booking_start,
-            "%Y-%m-%d"
+            "%Y-%m-%d %I:%M %p"
         )
 
         booking_end = datetime.strptime(
             booking_end,
-            "%Y-%m-%d"
+            "%Y-%m-%d %I:%M %p"
         )
 
-        function_start = datetime.strptime(
-            function_start,
+        occasion_start = datetime.strptime(
+            occasion_start,
             "%Y-%m-%d"
-        )
+        ).date()
 
-        function_end = datetime.strptime(
-            function_end,
+        occasion_end = datetime.strptime(
+            occasion_end,
             "%Y-%m-%d"
-        )
+        ).date()
 
     except ValueError:
 
         print(
-            "Invalid date format. Use YYYY-MM-DD."
+            "Invalid format. Use YYYY-MM-DD HH:MM AM/PM."
         )
 
         return False
@@ -91,26 +92,79 @@ def validate_dates(
 
         return False
 
-    if function_start > function_end:
+    if occasion_start > occasion_end:
 
         print(
-            "Function start date cannot be after function end date."
+            "Occasion start date cannot be after occasion end date."
         )
 
         return False
 
     if (
-        function_start < booking_start
-        or function_end > booking_end
+        occasion_start < booking_start.date()
+        or occasion_end > booking_end.date()
     ):
 
         print(
-            "Function dates must fall within booking dates."
+            "Occasion dates must fall within booking dates."
         )
 
         return False
 
     return True
+
+
+def get_datetime_input(prompt):
+
+    while True:
+
+        date_value = input(prompt).strip()
+
+        try:
+            datetime.strptime(
+                date_value,
+                "%Y-%m-%d %I:%M %p"
+            )
+            return date_value
+
+        except ValueError:
+            print(
+                "Invalid date. Enter again."
+            )
+
+
+def get_date_input(prompt):
+
+    while True:
+
+        date_value = input(prompt).strip()
+
+        try:
+            datetime.strptime(
+                date_value,
+                "%Y-%m-%d"
+            )
+            return date_value
+
+        except ValueError:
+            print(
+                "Invalid date. Enter again."
+            )
+
+
+def get_valid_phone(prompt):
+
+    while True:
+
+        phone = input(prompt).strip()
+
+        if not phone.isdigit() or len(phone) != 10:
+            print(
+                "Invalid phone number. Please enter again."
+            )
+            continue
+
+        return phone
 
 
 def check_availability(
@@ -166,6 +220,46 @@ def check_availability(
     return False
 
 
+
+def get_available_quantity(
+    item_id,
+    booking_start,
+    booking_end
+):
+
+    total_reserved = 0
+
+    for booking in bookings:
+
+        if "items" in booking:
+
+            for item in booking["items"]:
+
+                if item["item_id"] != item_id:
+                    continue
+
+                overlap = not (
+                    booking_end
+                    < booking["booking_start_date"]
+                    or booking_start
+                    > booking["booking_end_date"]
+                )
+
+                if overlap:
+                    total_reserved += item["quantity"]
+
+    for item in inventory:
+
+        if item["item_id"] == item_id:
+
+            return (
+                item["quantity"]
+                - total_reserved
+            )
+
+    return 0
+
+
 #  STEP 1 + STEP 2 ADDITION
 def add_multiple_items(
          booking_start,
@@ -192,13 +286,20 @@ def add_multiple_items(
         print("\nMatching Items:")
 
         for index, item in enumerate(matches, start=1):
+            available_qty = get_available_quantity(
+                item["item_id"],
+                booking_start,
+                booking_end
+            )
             print(
                 f"{index}. "
                 f"{item['item_name']} "
-                f"(Qty: {item['quantity']})"
+                f"(Available: {available_qty}) "
+                f"(Rate: {item['rent_price']})"
             )
 
         try:
+
             choice = int(
                 input("Select item number: ")
             )
@@ -219,107 +320,288 @@ def add_multiple_items(
                 booking_start,
                 booking_end
             ):
-                print(
-                    "Not enough inventory available."
-                )
+                print("Not enough inventory available.")
                 continue
 
             items.append({
                 "item_id": selected_item["item_id"],
                 "item_name": selected_item["item_name"],
-                "quantity": qty
+                "quantity": qty,
+                "rent_price": selected_item.get("rent_price")
             })
-
             print("Item added successfully")
 
         except (
-              ValueError,
-              IndexError
-                ):
+            ValueError,
+            IndexError
+        ):
             print("Invalid input")
 
     return items
 
+               
+
+        
+        
+
+def select_customer():
+
+    while True:
+
+        print("\n1. Use Existing Customer")
+        print("2. Create New Customer")
+
+        choice = input(
+            "Enter choice: "
+        ).strip()
+
+        if choice == "1":
+
+            if not customers:
+
+                print(
+                    "No customers found."
+                )
+
+                return None
+
+            print("\n===== CUSTOMERS =====")
+
+            for customer in customers:
+
+                print(
+                    f"{customer['customer_id']} | "
+                    f"{customer['customer_name']} | "
+                    f"{customer['customer_phone']}"
+                )
+
+            while True:
+
+                try:
+
+                    customer_id = int(
+                        input(
+                            "Enter Customer ID: "
+                        )
+                    )
+                    break
+
+                except ValueError:
+
+                    print(
+                        "Invalid Customer ID. Please enter again."
+                    )
+
+            for customer in customers:
+
+                if (
+                    customer["customer_id"]
+                    == customer_id
+                ):
+                    return customer
+
+            print("Customer not found.")
+            return None
+
+        elif choice == "2":
+
+            customer_name = input(
+                "Customer Name: "
+            ).strip()
+
+            while not customer_name:
+                print(
+                    "Customer name cannot be empty. Please enter again."
+                )
+                customer_name = input(
+                    "Customer Name: "
+                ).strip()
+
+            customer_phone = get_valid_phone(
+                "Customer Phone: "
+            )
+
+            existing_customer = next(
+                (
+                    customer for customer in customers
+                    if customer["customer_phone"] == customer_phone
+                ),
+                None
+            )
+
+            if existing_customer:
+                print(
+                    "Customer already exists. Using existing customer."
+                )
+                return existing_customer
+
+            return get_or_create_customer(
+                customer_name,
+                customer_phone
+            )
+
+        else:
+
+            print("Invalid choice. Please enter again.")
+
 
 def create_booking():
 
-    
+    customer = select_customer()
 
-    customer_name = input(
-        "Customer Name: "
-    ).strip()
-
-    #  STEP 2 ADDITION
-    customer_phone = input(
-        "Customer Phone (optional): "
-    ).strip()
-
-    customer = get_or_create_customer(
-    customer_name,
-    customer_phone
-    )
+    if customer is None:
+       return
 
     occasion = get_occasion()
 
     if occasion is None:
         return
 
-    booking_start = input(
-        "Booking Start Date (YYYY-MM-DD): "
-    ).strip()
+    booking_start = get_datetime_input(
+        "Booking Start Date (YYYY-MM-DD HH:MM AM/PM): "
+    )
 
-    booking_end = input(
-        "Booking End Date (YYYY-MM-DD): "
-    ).strip()
+    booking_end = get_datetime_input(
+        "Booking End Date (YYYY-MM-DD HH:MM AM/PM): "
+    )
 
-    function_start = input(
-        "Function Start Date (YYYY-MM-DD): "
-    ).strip()
+    occasion_start = get_date_input(
+        "Occasion Start Date (YYYY-MM-DD): "
+    )
 
-    function_end = input(
-        "Function End Date (YYYY-MM-DD): "
-    ).strip()
+    occasion_end = get_date_input(
+        "Occasion End Date (YYYY-MM-DD): "
+    )
 
-    if not validate_dates(
+    while not validate_dates(
         booking_start,
         booking_end,
-        function_start,
-        function_end
+        occasion_start,
+        occasion_end
     ):
-        return
+        print(
+            "Invalid date. Enter again."
+        )
 
-    #  MULTI ITEM SELECTION (STEP 1)
-    items = add_multiple_items( 
+        booking_start = get_datetime_input(
+            "Booking Start Date (YYYY-MM-DD HH:MM AM/PM): "
+        )
+
+        booking_end = get_datetime_input(
+            "Booking End Date (YYYY-MM-DD HH:MM AM/PM): "
+        )
+
+        occasion_start = get_date_input(
+            "Occasion Start Date (YYYY-MM-DD): "
+        )
+
+        occasion_end = get_date_input(
+            "Occasion End Date (YYYY-MM-DD): "
+        )
+
+    items = add_multiple_items(
         booking_start,
         booking_end
-
     )
 
     if not items:
-        print("No items selected for booking.")
+        print(
+            "No items selected for booking."
+        )
         return
 
-    try:
-        total_amount = float(
-            input("Total Amount: ")
+    total_amount = Decimal("0")
+
+    for item in items:
+
+        item_total = (
+            Decimal(str(item["quantity"]))
+            * Decimal(item["rent_price"])
         )
 
-        advance_paid = float(
-            input("Advance Paid: ")
+        total_amount += item_total
+
+    print("\n===== BOOKING SUMMARY =====")
+
+    for item in items:
+
+        item_total = (
+            Decimal(str(item["quantity"]))
+            * Decimal(item["rent_price"])
         )
 
-        if total_amount < 0 or advance_paid < 0:
-            print("Invalid amount")
-            return
+        print(
+            f"{item['item_name']} | "
+            f"Qty: {item['quantity']} | "
+            f"Rate: {item['rent_price']} | "
+            f"Amount: {item_total}"
+        )
 
-    except ValueError:
-        print("Invalid amount")
-        return
+    print(f"\nTotal Amount: {total_amount}")
 
-    pending_amount = total_amount - advance_paid
+    while True:
+
+        try:
+            discount = Decimal(
+                input("Discount: ")
+            )
+
+            if discount < 0:
+                print("Invalid discount. Enter again.")
+                continue
+
+            if discount > total_amount:
+                print(
+                    "Discount cannot be greater than total amount."
+                )
+                continue
+
+            break
+
+        except Exception:
+            print("Invalid discount. Enter again.")
+
+    final_amount = (
+        total_amount - discount
+    )
+
+    print(
+        f"Final Amount: {final_amount}"
+    )
+
+    while True:
+
+        try:
+            advance_paid = Decimal(
+                input("Advance Paid: ")
+            )
+
+            if advance_paid < 0:
+                print("Invalid amount. Enter again.")
+                continue
+
+            if advance_paid > final_amount:
+                print(
+                    "Advance cannot be greater than total amount. Enter again."
+                )
+                continue
+
+            break
+
+        except Exception:
+            print("Invalid amount. Enter again.")
+
+    pending_amount = (
+        final_amount - advance_paid
+    )
 
     if pending_amount < 0:
-        print("Advance cannot be greater than total amount")
+
+        print(
+            "Advance cannot be greater "
+            "than total amount."
+        )
+
         return
 
     payment_status = (
@@ -327,6 +609,15 @@ def create_booking():
         if pending_amount == 0
         else "Pending"
     )
+
+    confirm = input(
+        "\nConfirm Booking? (y/n): "
+    ).lower()
+
+    if confirm != "y":
+
+        print("Booking cancelled.")
+        return
 
     booking = {
         "booking_id": generate_booking_id(),
@@ -337,14 +628,13 @@ def create_booking():
 
         "booking_start_date": booking_start,
         "booking_end_date": booking_end,
-        "function_start_date": function_start,
-        "function_end_date": function_end,
+        "occasion_start_date": occasion_start,
+        "occasion_end_date": occasion_end,
 
-        #  STEP 2 PAYMENT SYSTEM
         "payment": {
-            "total_amount": total_amount,
-            "advance_paid": advance_paid,
-            "pending_amount": pending_amount,
+            "total_amount": str(final_amount),
+            "advance_paid": str(advance_paid),
+            "pending_amount": str(pending_amount),
             "status": payment_status
         },
 
@@ -354,9 +644,12 @@ def create_booking():
     }
 
     bookings.append(booking)
+
     save_bookings(bookings)
 
-    print("Booking created successfully.")
+    print(
+        "Booking created successfully."
+    )
 
 def get_customer(customer_id):
 
@@ -367,7 +660,30 @@ def get_customer(customer_id):
 
     return None
 
+def show_booking_list():
+
+    if not bookings:
+        print("No bookings found.")
+        return
+
+    print("\n===== BOOKING LIST =====")
+
+    for booking in bookings:
+
+        customer = get_customer(
+            booking["customer_id"]
+        )
+
+        if customer:
+
+            print(
+                f"ID: {booking['booking_id']} | "
+                f"{customer['customer_name']} | "
+                f"{customer['customer_phone']}"
+            )
+
 def mark_delivered():
+    show_booking_list()
 
     booking_id = input(
         "Enter Booking ID: "
@@ -399,6 +715,7 @@ def mark_delivered():
     print("Booking not found.")
 
 def mark_returned():
+    show_booking_list()
 
     booking_id = input(
         "Enter Booking ID: "
@@ -483,7 +800,11 @@ def mark_returned():
 
     print("Booking not found.")
 
+from decimal import Decimal
+
+
 def update_payment():
+    show_booking_list()
 
     booking_id = input(
         "Enter Booking ID: "
@@ -501,57 +822,92 @@ def update_payment():
         if booking["booking_id"] == booking_id:
 
             if "payment" not in booking:
-                print("No payment information found.")
+
+                print(
+                    "No payment information found."
+                )
+
                 return
+
+            pending_amount = Decimal(
+                str(
+                    booking["payment"][
+                        "pending_amount"
+                    ]
+                )
+            )
+
+            advance_paid = Decimal(
+                str(
+                    booking["payment"][
+                        "advance_paid"
+                    ]
+                )
+            )
 
             print(
                 f"Current Pending Amount: "
-                f"{booking['payment']['pending_amount']}"
+                f"{pending_amount}"
             )
 
             try:
 
-                amount_received = float(
+                amount_received = Decimal(
                     input(
                         "Enter Amount Received: "
                     )
                 )
 
                 if amount_received <= 0:
+
                     print(
-                        "Amount must be greater than zero."
+                        "Amount must be greater "
+                        "than zero."
                     )
+
                     return
 
-            except ValueError:
+            except:
+
                 print("Invalid amount.")
                 return
 
-            if (
-                amount_received >
-                booking["payment"]["pending_amount"]
-            ):
+            if amount_received > pending_amount:
 
                 print(
                     "Amount cannot be greater "
                     "than pending amount."
                 )
+
                 return
 
-            booking["payment"]["advance_paid"] += (
-                amount_received
+            advance_paid += amount_received
+
+            pending_amount -= amount_received
+
+            booking["payment"][
+                "advance_paid"
+            ] = str(
+                advance_paid
             )
 
-            booking["payment"]["pending_amount"] -= (
-                amount_received
+            booking["payment"][
+                "pending_amount"
+            ] = str(
+                pending_amount
             )
 
-            if (
-                booking["payment"]["pending_amount"]
-                == 0
-            ):
+            if pending_amount == Decimal("0"):
 
-                booking["payment"]["status"] = "Paid"
+                booking["payment"][
+                    "status"
+                ] = "Paid"
+
+            else:
+
+                booking["payment"][
+                    "status"
+                ] = "Pending"
 
             save_bookings(bookings)
 
@@ -561,7 +917,7 @@ def update_payment():
 
             print(
                 f"Remaining Pending Amount: "
-                f"{booking['payment']['pending_amount']}"
+                f"{pending_amount}"
             )
 
             print(
@@ -600,15 +956,22 @@ def view_bookings():
                 print(f"Phone: {booking.get('customer_phone')}")
 
         print("\nItems:")
-
         if "items" in booking:
-            for item in booking["items"]:
-                print(f" - {item['item_name']} | Qty: {item['quantity']}")
+
+           for item in booking["items"]:
+
+             print(
+                 f" - {item['item_name']} | "
+                 f"Qty: {item['quantity']} | "
+                 f"Rate: {item.get('rent_price', 'N/A')}"
+              )
+
+        
         else:
             print(f" - {booking.get('item_name')} | Qty: {booking.get('quantity')}")
 
         print(f"\nBooking Dates: {booking.get('booking_start_date')} to {booking.get('booking_end_date')}")
-        print(f"Function Dates: {booking.get('function_start_date')} to {booking.get('function_end_date')}")
+        print(f"Occasion Dates: {booking.get('occasion_start_date')} to {booking.get('occasion_end_date')}")
 
         # Payment and statuses
         if "payment" in booking:
@@ -617,6 +980,18 @@ def view_bookings():
             print(f"Advance: {booking['payment'].get('advance_paid')}")
             print(f"Pending: {booking['payment'].get('pending_amount')}")
             print(f"Status: {booking['payment'].get('status')}")
+
+        if "damaged_items" in booking:
+
+          print("\nDamaged Items:")
+
+          for item in booking["damaged_items"]:
+
+           print(
+              f"{item['item_name']} | "
+              f"Qty: {item['quantity']} | "
+              f"Reason: {item['reason']}"
+            )
 
         print(f"Delivery Status: {booking.get('delivery_status')}")
         print(f"Return Status: {booking.get('return_status')}")
