@@ -1,4 +1,4 @@
-import decimal
+from decimal import Decimal
 
 from storage import load_inventory, save_inventory
 
@@ -44,7 +44,7 @@ def add_item():
         return
 
     try:
-        rent_price = decimal(
+        rent_price = Decimal(
             input("Enter rent price per unit: ")
         )
 

@@ -30,6 +30,33 @@ def generate_booking_id():
     ) + 1
 
 
+def get_booking_date(booking):
+
+    return booking["booking_date"]
+
+
+def get_return_date(booking):
+
+    return booking["return_date"]
+
+def parse_booking_datetime(date_string):
+
+    try:
+        return datetime.strptime(
+            date_string,
+            "%Y-%m-%d %I:%M %p"
+        )
+
+    except ValueError:
+
+        return datetime.strptime(
+            date_string,
+            "%Y-%m-%d"
+        )
+
+
+
+
 def get_occasion():
 
     occasion = input(
@@ -48,21 +75,21 @@ def get_occasion():
 
 
 def validate_dates(
-    booking_start,
-    booking_end,
+    booking_date,
+    return_date,
     occasion_start,
     occasion_end
 ):
 
     try:
 
-        booking_start = datetime.strptime(
-            booking_start,
+        booking_date = datetime.strptime(
+            booking_date,
             "%Y-%m-%d %I:%M %p"
         )
 
-        booking_end = datetime.strptime(
-            booking_end,
+        return_date = datetime.strptime(
+            return_date,
             "%Y-%m-%d %I:%M %p"
         )
 
@@ -84,10 +111,10 @@ def validate_dates(
 
         return False
 
-    if booking_start > booking_end:
+    if booking_date > return_date:
 
         print(
-            "Booking start date cannot be after booking end date."
+            "Booking date cannot be after return date."
         )
 
         return False
@@ -101,8 +128,8 @@ def validate_dates(
         return False
 
     if (
-        occasion_start < booking_start.date()
-        or occasion_end > booking_end.date()
+        occasion_start < booking_date.date()
+        or occasion_end > return_date.date()
     ):
 
         print(
@@ -170,83 +197,130 @@ def get_valid_phone(prompt):
 def check_availability(
     item_id,
     required_quantity,
-    booking_start,
-    booking_end
+    booking_date,
+    return_date
 ):
 
     total_reserved = 0
 
+    current_start = parse_booking_datetime(
+        booking_date
+    )
+
+    current_end = parse_booking_datetime(
+        return_date
+    )
+
     for booking in bookings:
 
-        if "items" in booking:
+        if booking.get(
+            "booking_status"
+        ) == "Completed":
+            continue
 
-            for item in booking["items"]:
+        for item in booking["items"]:
 
-                if item["item_id"] != item_id:
-                    continue
+            if item["item_id"] != item_id:
+                continue
 
-                overlap = not (
-                    booking_end
-                    < booking["booking_start_date"]
-                    or booking_start
-                    > booking["booking_end_date"]
+            existing_start = (
+                parse_booking_datetime(
+                    get_booking_date(
+                        booking
+                    )
                 )
+            )
 
-                if overlap:
-                    total_reserved += item["quantity"]
-
-        else:
-            # backward compatibility (old bookings)
-            if booking["item_id"] == item_id:
-
-                overlap = not (
-                    booking_end
-                    < booking["booking_start_date"]
-                    or booking_start
-                    > booking["booking_end_date"]
+            existing_end = (
+                parse_booking_datetime(
+                    get_return_date(
+                        booking
+                    )
                 )
+            )
 
-                if overlap:
-                    total_reserved += booking["quantity"]
+            overlap = not (
+                current_end < existing_start
+                or current_start > existing_end
+            )
+
+            if overlap:
+                total_reserved += (
+                    item["quantity"]
+                )
 
     for item in inventory:
 
         if item["item_id"] == item_id:
 
-            available = item["quantity"] - total_reserved
+            available = (
+                item["quantity"]
+                - total_reserved
+            )
 
-            return available >= required_quantity
+            return (
+                available
+                >= required_quantity
+            )
 
     return False
 
 
 
+
 def get_available_quantity(
     item_id,
-    booking_start,
-    booking_end
+    booking_date,
+    return_date
 ):
 
     total_reserved = 0
 
+    current_start = parse_booking_datetime(
+        booking_date
+    )
+
+    current_end = parse_booking_datetime(
+        return_date
+    )
+
     for booking in bookings:
 
-        if "items" in booking:
+        if booking.get(
+            "booking_status"
+        ) == "Completed":
+            continue
 
-            for item in booking["items"]:
+        for item in booking["items"]:
 
-                if item["item_id"] != item_id:
-                    continue
+            if item["item_id"] != item_id:
+                continue
 
-                overlap = not (
-                    booking_end
-                    < booking["booking_start_date"]
-                    or booking_start
-                    > booking["booking_end_date"]
+            existing_start = (
+                parse_booking_datetime(
+                    get_booking_date(
+                        booking
+                    )
                 )
+            )
 
-                if overlap:
-                    total_reserved += item["quantity"]
+            existing_end = (
+                parse_booking_datetime(
+                    get_return_date(
+                        booking
+                    )
+                )
+            )
+
+            overlap = not (
+                current_end < existing_start
+                or current_start > existing_end
+            )
+
+            if overlap:
+                total_reserved += (
+                    item["quantity"]
+                )
 
     for item in inventory:
 
@@ -259,11 +333,10 @@ def get_available_quantity(
 
     return 0
 
-
 #  STEP 1 + STEP 2 ADDITION
 def add_multiple_items(
-         booking_start,
-         booking_end
+         booking_date,
+         return_date
 ):
 
     items = []
@@ -288,8 +361,8 @@ def add_multiple_items(
         for index, item in enumerate(matches, start=1):
             available_qty = get_available_quantity(
                 item["item_id"],
-                booking_start,
-                booking_end
+                booking_date,
+                return_date
             )
             print(
                 f"{index}. "
@@ -317,8 +390,8 @@ def add_multiple_items(
             if not check_availability(
                 selected_item["item_id"],
                 qty,
-                booking_start,
-                booking_end
+                booking_date,
+                return_date
             ):
                 print("Not enough inventory available.")
                 continue
@@ -457,12 +530,12 @@ def create_booking():
     if occasion is None:
         return
 
-    booking_start = get_datetime_input(
-        "Booking Start Date (YYYY-MM-DD HH:MM AM/PM): "
+    booking_date = get_datetime_input(
+        "Booking Date (YYYY-MM-DD HH:MM AM/PM): "
     )
 
-    booking_end = get_datetime_input(
-        "Booking End Date (YYYY-MM-DD HH:MM AM/PM): "
+    return_date = get_datetime_input(
+        "Return Date (YYYY-MM-DD HH:MM AM/PM): "
     )
 
     occasion_start = get_date_input(
@@ -474,8 +547,8 @@ def create_booking():
     )
 
     while not validate_dates(
-        booking_start,
-        booking_end,
+        booking_date,
+        return_date,
         occasion_start,
         occasion_end
     ):
@@ -483,12 +556,12 @@ def create_booking():
             "Invalid date. Enter again."
         )
 
-        booking_start = get_datetime_input(
-            "Booking Start Date (YYYY-MM-DD HH:MM AM/PM): "
+        booking_date = get_datetime_input(
+            "Booking Date (YYYY-MM-DD HH:MM AM/PM): "
         )
 
-        booking_end = get_datetime_input(
-            "Booking End Date (YYYY-MM-DD HH:MM AM/PM): "
+        return_date = get_datetime_input(
+            "Return Date (YYYY-MM-DD HH:MM AM/PM): "
         )
 
         occasion_start = get_date_input(
@@ -500,8 +573,8 @@ def create_booking():
         )
 
     items = add_multiple_items(
-        booking_start,
-        booking_end
+        booking_date,
+        return_date
     )
 
     if not items:
@@ -626,8 +699,8 @@ def create_booking():
         "occasion": occasion,
         "items": items,
 
-        "booking_start_date": booking_start,
-        "booking_end_date": booking_end,
+        "booking_date": booking_date,
+        "return_date": return_date,
         "occasion_start_date": occasion_start,
         "occasion_end_date": occasion_end,
 
@@ -929,6 +1002,9 @@ def update_payment():
 
     print("Booking not found.")
 
+
+       
+
 def view_bookings():
     if not bookings:
         print("No bookings found.")
@@ -970,7 +1046,7 @@ def view_bookings():
         else:
             print(f" - {booking.get('item_name')} | Qty: {booking.get('quantity')}")
 
-        print(f"\nBooking Dates: {booking.get('booking_start_date')} to {booking.get('booking_end_date')}")
+        print(f"\nBooking Dates: {booking.get('booking_date')} to {booking.get('return_date')}")
         print(f"Occasion Dates: {booking.get('occasion_start_date')} to {booking.get('occasion_end_date')}")
 
         # Payment and statuses

@@ -18,5 +18,15 @@
         "customer_id": 4,
         "customer_name": "Krish",
         "customer_phone": "7889530355"
+    },
+    {
+        "customer_id": 5,
+        "customer_name": "Parul",
+        "customer_phone": "9697603640"
+    },
+    {
+        "customer_id": 6,
+        "customer_name": "Sourav",
+        "customer_phone": "9906389971"
     }
 ]
