@@ -1,0 +1,72 @@
+[
+    {
+        "booking_id": 12,
+        "customer_id": 4,
+        "occasion": "wedding",
+        "items": [
+            {
+                "item_id": 2,
+                "item_name": "Wooden chairs",
+                "quantity": 100,
+                "rent_price": 30.0
+            },
+            {
+                "item_id": 4,
+                "item_name": "Table",
+                "quantity": 40,
+                "rent_price": 15.0
+            },
+            {
+                "item_id": 5,
+                "item_name": "Shamiana",
+                "quantity": 1,
+                "rent_price": 100.0
+            }
+        ],
+        "booking_date": "2026-06-02 06:20 pm",
+        "return_date": "2026-06-08 12:30 pm",
+        "occasion_start_date": "2026-06-04",
+        "occasion_end_date": "2026-06-07",
+        "payment": {
+            "total_amount": "3500",
+            "advance_paid": "3500",
+            "pending_amount": "0",
+            "status": "Paid"
+        },
+        "delivery_status": "Delivered",
+        "return_status": "Returned",
+        "booking_status": "Completed"
+    },
+    {
+        "booking_id": 13,
+        "customer_id": 6,
+        "occasion": "Birthday",
+        "items": [
+            {
+                "item_id": 3,
+                "item_name": "steel chairs",
+                "quantity": 50,
+                "rent_price": 20.0
+            },
+            {
+                "item_id": 4,
+                "item_name": "Table",
+                "quantity": 5,
+                "rent_price": 15.0
+            }
+        ],
+        "booking_date": "2026-06-03 09:11 PM",
+        "return_date": "2026-06-06 12:30 pm",
+        "occasion_start_date": "2026-06-05",
+        "occasion_end_date": "2026-06-05",
+        "payment": {
+            "total_amount": "1000",
+            "advance_paid": "500",
+            "pending_amount": "500",
+            "status": "Pending"
+        },
+        "delivery_status": "Pending",
+        "return_status": "Pending",
+        "booking_status": "Booked"
+    }
+]

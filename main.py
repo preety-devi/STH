@@ -1,33 +1,67 @@
 from inventory import (
     add_item,
-    view_items,
-    search_items
+    view_items
 )
+
+from booking import (
+    create_booking,
+    view_bookings,
+    mark_delivered,
+    mark_returned,
+    update_payment,
+    
+)
+
 
 def main():
 
     while True:
 
-        print("\n===== Sharma Tent House Inventory =====")
+        print("\n===== Sharma Tent House =====")
 
-        print("1. Add Item")
-        print("2. View / Search Items")
-        print("3. Exit")
+        print("1. Add Inventory Item")
+        print("2. View Inventory")
+        print("3. Create Booking")
+        print("4. View Bookings")
+        print("5. Update Payment")
+        print("6. Mark Delivered")
+        print("7. Mark Returned")
+        print("8. Exit")
 
-        choice = input("\nEnter your choice (1-3): ")
+        choice = input(
+            "\nEnter your choice (1-8): "
+        )
 
         if choice == "1":
             add_item()
 
         elif choice == "2":
-            view_items()   # This will also allow searching and actions on items
+            view_items()
 
         elif choice == "3":
+            create_booking()
+
+        elif choice == "4":
+            view_bookings()
+
+        elif choice == "5":
+          update_payment()
+
+        elif choice == "6":
+          mark_delivered()
+
+        elif choice == "7":
+          mark_returned()
+
+       
+
+        elif choice == "8":
             print("Exiting program...")
+
             break
 
         else:
-            print("Invalid choice. Please enter 1-3.")
+            print("Invalid choice.")
 
 
 if __name__ == "__main__":
