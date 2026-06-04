@@ -145,20 +145,26 @@ def get_datetime_input(prompt):
 
     while True:
 
-        date_value = input(prompt).strip()
+        date_value = input(
+            prompt
+        ).strip()
 
         try:
-            datetime.strptime(
+
+            parsed_date = datetime.strptime(
                 date_value,
                 "%Y-%m-%d %I:%M %p"
             )
-            return date_value
+
+            return parsed_date.strftime(
+                "%Y-%m-%d %I:%M %p"
+            )
 
         except ValueError:
+
             print(
                 "Invalid date. Enter again."
             )
-
 
 def get_date_input(prompt):
 
